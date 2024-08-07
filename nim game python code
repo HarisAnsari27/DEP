@@ -1,0 +1,119 @@
+import random
+
+class RedBlueNim:
+    def __init__(self, version='standard'):
+        self.version = version
+        self.reset_game()
+
+    def reset_game(self):
+        self.red_pile = 10
+        self.blue_pile = 10
+        self.current_player = 'Player'  # or 'Computer'
+
+    def display_piles(self):
+        print(f"\nRed Pile: {self.red_pile} marbles")
+        print(f"Blue Pile: {self.blue_pile} marbles")
+
+    def player_move(self):
+        while True:
+            pile_choice = input("Choose a pile to take from (red/blue): ").strip().lower()
+            if pile_choice == 'red':
+                if self.red_pile == 0:
+                    print("Red pile is empty. Choose again.")
+                    continue
+                max_take = min(3, self.red_pile)
+            elif pile_choice == 'blue':
+                if self.blue_pile == 0:
+                    print("Blue pile is empty. Choose again.")
+                    continue
+                max_take = min(3, self.blue_pile)
+            else:
+                print("Invalid choice. Please choose 'red' or 'blue'.")
+                continue
+
+            take_count = int(input(f"How many marbles do you want to take from the {pile_choice} pile (1, 2, or 3)? "))
+            if take_count < 1 or take_count > max_take:
+                print(f"Invalid number. You must take between 1 and {max_take} marbles.")
+            else:
+                if pile_choice == 'red':
+                    self.red_pile -= take_count
+                else:
+                    self.blue_pile -= take_count
+                break
+
+    def computer_move(self):
+        print("\nComputer's turn:")
+        if self.red_pile > 0 and (self.blue_pile == 0 or random.choice([True, False])):
+            take_count = random.randint(1, min(3, self.red_pile))
+            print(f"Computer takes {take_count} marbles from the red pile.")
+            self.red_pile -= take_count
+        else:
+            take_count = random.randint(1, min(3, self.blue_pile))
+            print(f"Computer takes {take_count} marbles from the blue pile.")
+            self.blue_pile -= take_count
+
+    def check_winner(self):
+        if self.version == 'standard':
+            if self.red_pile == 0 or self.blue_pile == 0:
+                if self.current_player == 'Player':
+                    print("\nPlayer wins!")
+                else:
+                    print("\nComputer wins!")
+                return True
+        elif self.version == 'misery':
+            if self.red_pile == 0 or self.blue_pile == 0:
+                if self.current_player == 'Player':
+                    print("\nPlayer loses! Computer wins!")
+                else:
+                    print("\nComputer loses! Player wins!")
+                return True
+        return False
+
+    def play_game(self):
+        while not self.check_winner():
+            self.display_piles()
+            if self.current_player == 'Player':
+                self.player_move()
+                if self.check_winner():
+                    break
+                self.current_player = 'Computer'
+            else:
+                self.computer_move()
+                if self.check_winner():
+                    break
+                self.current_player = 'Player'
+        self.display_scores()
+        self.prompt_restart()
+
+    def display_scores(self):
+        red_score = self.red_pile * 2
+        blue_score = self.blue_pile * 3
+        total_score = red_score + blue_score
+        print(f"\nFinal Scores:")
+        print(f"Red Marbles: {self.red_pile} * 2 = {red_score}")
+        print(f"Blue Marbles: {self.blue_pile} * 3 = {blue_score}")
+        print(f"Total Score: {total_score}")
+
+    def prompt_restart(self):
+        choice = input("\nDo you want to play again? (yes/no): ").strip().lower()
+        if choice == 'yes':
+            self.select_version()
+            self.reset_game()
+            self.play_game()
+        else:
+            print("Thanks for playing!")
+
+    def select_version(self):
+        while True:
+            version_choice = input("Enter game version (standard/misery): ").strip().lower()
+            if version_choice in ['standard', 'misery']:
+                self.version = version_choice
+                break
+            else:
+                print("Invalid choice. Please choose 'standard' or 'misery'.")
+
+# Example usage
+if __name__ == "__main__":
+    game = RedBlueNim()
+    game.select_version()
+    game.play_game()
